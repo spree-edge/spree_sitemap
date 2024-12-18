@@ -43,10 +43,18 @@ SitemapGenerator::Sitemap.create do
   #   Article.find_each do |article|
   #     add article_path(article), lastmod: article.updated_at
   #   end
-  add_login
-  add_signup
-  add_account
-  add_password_reset
-  add_taxons
-  add_products
+  group(compress: true, filename: 'authentication') do
+    add_login
+    add_signup
+    add_account
+    add_password_reset
+  end
+
+  group(compress: true, filename: 'categories') do
+    add_taxons
+  end
+
+  group(compress: true, filename: 'products') do
+    add_products
+  end
 end
