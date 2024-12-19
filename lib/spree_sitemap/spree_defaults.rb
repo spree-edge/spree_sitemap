@@ -49,11 +49,11 @@ module SpreeSitemap::SpreeDefaults
   def add_pages(options = {})
     # TODO: this should be refactored to add_pages & add_page
 
-    Spree::Page.active.each do |page|
+    Spree::CmsPage.active.each do |page|
       add(page.path, options.merge(lastmod: page.updated_at))
     end if gem_available? 'spree_essential_cms'
 
-    Spree::Page.visible.each do |page|
+    Spree::CmsPage.visible.each do |page|
       add(page.slug, options.merge(lastmod: page.updated_at))
     end if gem_available? 'spree_static_content'
   end
