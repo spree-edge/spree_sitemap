@@ -24,15 +24,14 @@ module SpreeSitemap::SpreeDefaults
 
   def add_products(options = {})
     active_products = Spree::Product.active.distinct
-    Spree::Store.default.supported_locales.split(',').each do |locale|
-      add(products_path(locale: locale), options.merge(lastmod: active_products.last_updated))
-      active_products.each do |product|
-        add_product(product, options, locale)
-      end
+
+    add(products_path, options.merge(lastmod: active_products.last_updated))
+    active_products.each do |product|
+      add_product(product, options)
     end
   end
 
-  def add_product(product, options = {}, locale)
+  def add_product(product, options = {})
     opts = options.merge(lastmod: product.updated_at)
 
     if gem_available?('spree_videos') && product.videos.present?
@@ -43,7 +42,8 @@ module SpreeSitemap::SpreeDefaults
       primary_video = product.videos.first
       opts.merge!(video: [video_options(primary_video.youtube_ref, product)])
     end
-    add(product_path(product, locale: locale), opts)
+
+    add(product_path(product), opts)
   end
 
   def add_pages(options = {})
@@ -59,14 +59,12 @@ module SpreeSitemap::SpreeDefaults
   end
 
   def add_taxons(options = {})
-    Spree::Store.default.supported_locales.split(',').each do |locale|
-      Spree::Taxon.roots.each { |taxon| add_taxon(taxon, options, locale) }
-    end
+    Spree::Taxon.roots.each { |taxon| add_taxon(taxon, options) }
   end
 
-  def add_taxon(taxon, options = {}, locale)
-    add(nested_taxons_path(locale, taxon.permalink), options.merge(lastmod: taxon.products.last_updated)) if taxon.permalink.present?
-    taxon.children.each { |child| add_taxon(child, options, locale) }
+  def add_taxon(taxon, options = {})
+    add(nested_taxons_path(taxon.permalink), options.merge(lastmod: taxon.products.last_updated)) if taxon.permalink.present?
+    taxon.children.each { |child| add_taxon(child, options) }
   end
 
   def gem_available?(name)
